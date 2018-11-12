@@ -43,13 +43,15 @@ initialize = () => {
                type:'input',
                message: 'How many ' + res[0].product_name + ' would you like to purchase?'
            }).then(function(data){
-               newQuant = res[0].stock_quantity - data.skies
+               newQuant = res[0].stock_quantity - data.skies;
+               totalCost = (res[0].price * data.skies);
                if (data.skies > res[0].stock_quantity ){
                    console.log("That's too much, I don't have enough of that product")
                }
                else {
                    connection.query("UPDATE products SET stock_quantity=" + newQuant+ " WHERE id=" + res[0].id)
-                   console.log('Your order of '+ data.skies+ " " + res[0].product_name +  ' has been processed, thank you for shopping at Max Mart')
+                   console.log('Your order of '+ data.skies+ " " + res[0].product_name +  ' has been processed it will cost ' +'$'+ totalCost + '\n');
+                   console.log("Thank you for shopping at Max Mart!")
                    process.exit()
                }
            })
