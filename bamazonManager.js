@@ -127,5 +127,37 @@ addInvent = () => {
             }
 
         addNew = () => {
-
+             inquirer.prompt([
+                 {
+                   name: 'item',
+                   type: 'input',
+                   message: 'What is the name of the item you want to add?'
+             },
+                {
+                 name: 'department',
+                 type: 'input',
+                 message: 'What department is the product?'
+                },
+                {
+                name: 'price',
+                type: 'input',
+                message: 'How much do you want to charge for the product'
+                },
+                {
+                 name: 'quantity',
+                 type: 'input',
+                 message: 'How many do you want to order'
+                }])
+                .then(function(data){
+                    connection.query("INSERT INTO products SET ?",{
+                        product_name: data.item,
+                        department_name: data.department,
+                        price: data.price,
+                        stock_quantity: data.quantity
+                    }, function(err, res){
+                        if (err) throw err
+                        console.log('Your Item Has been added to the database ')
+                    })
+                })
+                process.exit()
         }
