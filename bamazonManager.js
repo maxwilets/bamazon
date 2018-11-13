@@ -114,7 +114,6 @@ addInvent = () => {
                             var newData = parseInt(data.restock1)
                             
                         var newQuant = (quant + newData)
-                        console.log(newQuant)
                         query = "UPDATE products SET stock_quantity=" + newQuant + " WHERE id=" + ID
                         connection.query(query, function(err, res){
                             console.log("The inventory has been updated");
