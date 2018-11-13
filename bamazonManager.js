@@ -1,5 +1,6 @@
 var inquirer = require('inquirer');
 var mysql = require('mysql');
+var myTable = require('console.table')
 var firstChoice = ['View Products for Sale', "View Low Inventory", "Add to Inventory", "Add New Product"]
 
 var connection = mysql.createConnection({
@@ -55,18 +56,22 @@ firstScreen()
 viewProd = () => {
     query = "SELECT * FROM products"
     connection.query(query, function (err, res) {
+        var values = []
             for (i = 0; i < res.length; i++) {
-                console.log("Product ID: " + res[i].id);
-                console.log("Product Name: " + res[i].product_name);
-                console.log("Price: " + res[i].price);
-                console.log("Quantity: " + res[i].stock_quantity)
-                console.log('\n =============================================\n')
+                array = []
+                array.push(res[i].id, res[i].product_name, res[i].price, res[i].stock_quantity)
+                values.push(array)
+                
             }
+            console.log('\n =============================================\n');
+            console.table(['id', 'name', 'price','quantity'], values);
+            console.log('\n=============================================\n')
+            
             anyMore()
         }
 
     )
-    
+
 }
 
 lowInvent = () => {
@@ -83,101 +88,101 @@ lowInvent = () => {
 }
 
 addInvent = () => {
-        query = 'SELECT * FROM products'
-        connection.query(query, function (err, res) {
-            for (i = 0; i < res.length; i++) {
-                console.log('Product ID: ' + res[i].id);
-                console.log("Product Name: " + res[i].product_name);
-                console.log("Quantity: " + res[i].stock_quantity);
-                console.log('\n=============================================\n')
-            }
-            inquirer.prompt({
+    query = 'SELECT * FROM products'
+    connection.query(query, function (err, res) {
+        values = []
+        for (i = 0; i < res.length; i++) {  
+                array = []
+                array.push(res[i].id, res[i].product_name, res[i].price, res[i].stock_quantity)
+                values.push(array)
+        }
+        console.log('\n=============================================\n')
+        console.table(['id', 'name', 'price','quantity'], values);
+        console.log('\n=============================================\n')
+        inquirer.prompt({
                 name: 'restock',
                 type: 'input',
                 message: 'Enter the ID of the product you want to restock'
             })
             .then(function (data) {
-                    var ID = data.restock
-                   
-                   
-                    inquirer.prompt({
+                var ID = data.restock
+
+
+                inquirer.prompt({
                         name: 'restock1',
                         type: 'input',
                         message: "Enter quantity of units you want to restock"
 
                     })
-                    .then(function(data){
-                        connection.query("SELECT * FROM products where id="+ID, function(err, res){
+                    .then(function (data) {
+                        connection.query("SELECT * FROM products where id=" + ID, function (err, res) {
                             var quant = parseInt(res[0].stock_quantity)
                             var newData = parseInt(data.restock1)
-                            
-                        var newQuant = (quant + newData)
-                        query = "UPDATE products SET stock_quantity=" + newQuant + " WHERE id=" + ID
-                        connection.query(query, function(err, res){
-                            console.log("The inventory has been updated");
-                            anyMore();
+
+                            var newQuant = (quant + newData)
+                            query = "UPDATE products SET stock_quantity=" + newQuant + " WHERE id=" + ID
+                            connection.query(query, function (err, res) {
+                                console.log("The inventory has been updated");
+                                anyMore();
+                            })
                         })
                     })
-                    })
 
-                })//.then(addNew())
-                
-            
+            })
+    })
+}
 
-        })
-    }
-       
 
-        addNew = () => {
-             inquirer.prompt([
-                 {
-                   name: 'item',
-                   type: 'input',
-                   message: 'What is the name of the item you want to add?'
-             },
-                {
-                 name: 'department',
-                 type: 'input',
-                 message: 'What department is the product?'
-                },
-                {
+addNew = () => {
+    inquirer.prompt([{
+                name: 'item',
+                type: 'input',
+                message: 'What is the name of the item you want to add?'
+            },
+            {
+                name: 'department',
+                type: 'input',
+                message: 'What department is the product?'
+            },
+            {
                 name: 'price',
                 type: 'input',
                 message: 'How much do you want to charge for the product'
-                },
-                {
-                 name: 'quantity',
-                 type: 'input',
-                 message: 'How many do you want to order'
-                }])
-                .then(function(data){
-                    connection.query("INSERT INTO products SET ?",{
-                        product_name: data.item,
-                        department_name: data.department,
-                        price: data.price,
-                        stock_quantity: data.quantity
-                    }, function(err, res){
-                        if (err) throw err
-                        console.log('Your Item Has been added to the database ')
-                        anyMore()
-                    })
-                
-                })
-              
-        }
+            },
+            {
+                name: 'quantity',
+                type: 'input',
+                message: 'How many do you want to order'
+            }
+        ])
+        .then(function (data) {
+            connection.query("INSERT INTO products SET ?", {
+                product_name: data.item,
+                department_name: data.department,
+                price: data.price,
+                stock_quantity: data.quantity
+            }, function (err, res) {
+                if (err) throw err
+                console.log('Your Item Has been added to the database ')
+                anyMore()
+            })
 
-        anyMore= () => {
-            inquirer.prompt({
-                name: 'more',
-                type: 'confirm',
-                message: "Do you wish to do anything else Manager?"
-            })
-            .then(function(data){
-                if(data.more){
-                    firstScreen()
-                }
-                else {console.log("-_-_-_-_- Goodbye Manager -_-_-_-_-");
-                    process.exit()}
-            })
-        }
-        
+        })
+
+}
+
+anyMore = () => {
+    inquirer.prompt({
+            name: 'more',
+            type: 'confirm',
+            message: "Do you wish to do anything else Manager?"
+        })
+        .then(function (data) {
+            if (data.more) {
+                firstScreen()
+            } else {
+                console.log("-_-_-_-_- Goodbye Manager -_-_-_-_-");
+                process.exit()
+            }
+        })
+}
