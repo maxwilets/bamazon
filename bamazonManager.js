@@ -62,10 +62,11 @@ viewProd = () => {
                 console.log("Quantity: " + res[i].stock_quantity)
                 console.log('\n =============================================\n')
             }
+            anyMore()
         }
 
     )
-    process.exit()
+    
 }
 
 lowInvent = () => {
@@ -77,7 +78,7 @@ lowInvent = () => {
             console.log("Quantity: " + res[i].stock_quantity);
             console.log('\n =============================================\n')
         }
-        process.exit();
+        anyMore();
     })
 }
 
@@ -90,10 +91,7 @@ addInvent = () => {
                 console.log("Quantity: " + res[i].stock_quantity);
                 console.log('\n=============================================\n')
             }
-
-
-        })
-        inquirer.prompt({
+            inquirer.prompt({
                 name: 'restock',
                 type: 'input',
                 message: 'Enter the ID of the product you want to restock'
@@ -117,13 +115,18 @@ addInvent = () => {
                         query = "UPDATE products SET stock_quantity=" + newQuant + " WHERE id=" + ID
                         connection.query(query, function(err, res){
                             console.log("The inventory has been updated");
-                            process.exit();
+                            anyMore();
                         })
                     })
                     })
 
-                })
-            }
+                })//.then(addNew())
+                
+            
+
+        })
+    }
+       
 
         addNew = () => {
              inquirer.prompt([
@@ -156,7 +159,25 @@ addInvent = () => {
                     }, function(err, res){
                         if (err) throw err
                         console.log('Your Item Has been added to the database ')
+                        anyMore()
                     })
+                
                 })
-                process.exit()
+              
         }
+
+        anyMore= () => {
+            inquirer.prompt({
+                name: 'more',
+                type: 'confirm',
+                message: "Do you wish to do anything else Manager?"
+            })
+            .then(function(data){
+                if(data.more){
+                    firstScreen()
+                }
+                else {console.log("-_-_-_-_- Goodbye Manager -_-_-_-_-");
+                    process.exit()}
+            })
+        }
+        
