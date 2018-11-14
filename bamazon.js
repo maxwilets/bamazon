@@ -1,5 +1,6 @@
 var inquirer = require('inquirer');
 var mysql = require('mysql');
+var myTable = require('console.table')
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -17,15 +18,24 @@ var connection = mysql.createConnection({
 
 connection.connect(function (err) {
     if (err) throw err;
-    console.log("connected as id " + connection.threadId + "\n");
+   
 
 })
 connection.query('SELECT * FROM products', function (err, res) {
+    values = []
     console.log('Welcome to Max Mart, here are some of our wares: \n')
+   
     for (i = 0; i < res.length; i++) {
-        console.log("product id: " + res[i].id)
-        console.log('Name: ' + res[i].product_name + '\n')
+
+        array = []
+        array.push(res[i].id, res[i].product_name, res[i].price)
+        values.push(array)
     }
+    console.log('\n=============================================');
+    console.table(['ID', 'Name', 'Price'], values);
+    console.log('=============================================\n');
+
+    initialize()
 })
 
 
@@ -68,4 +78,4 @@ initialize = () => {
         });
 }
 
-initialize()
+//initialize()
