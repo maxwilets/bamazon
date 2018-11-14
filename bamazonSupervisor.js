@@ -23,6 +23,8 @@ connection.connect(function (err) {
 
     menuScreen()
 })
+
+//first screen prompt asking what to do
 menuScreen = () => {
     inquirer.prompt({
             name: 'choice',
@@ -44,15 +46,17 @@ menuScreen = () => {
 }
 
 viewSales = () => {
-    query = "SELECT departments.department_id AS 'ID', departments.department_name AS 'Department', ";
-    query += "departments.overhead AS 'Overhead', SUM(products.product_sales) AS 'Sales', SUM(products.product_sales)-(departments.overhead) ";
+    //to see the department table and product info we use a left join this is the query
+    query = "SELECT departments.department_id, departments.department_name, departments.overhead,"
+    query +=  "SUM(products.product_sales) AS 'Sales', SUM(products.product_sales)-(departments.overhead) ";
     query += "AS 'Profit' FROM departments LEFT JOIN products ON departments.department_name = products.department_name "
     query += "GROUP BY departments.department_name"
     connection.query(query, function (err, res) {
         var values = []
+        //loop to make the table
         for (i = 0; i < res.length; i++) {
             array = [];
-            array.push(res[i].ID, res[i].Department, res[i].Overhead, res[i].Sales, res[i].Profit)
+            array.push(res[i].department_id, res[i].department_name, res[i].department_name, res[i].Sales, res[i].Profit)
             values.push(array)
         }
         console.log('\n =============================================\n');
@@ -63,7 +67,8 @@ viewSales = () => {
     })
 
 }
-
+//if the user wants to add a new department
+//asks the name and overhead of the department
 addDept = () => {
       inquirer.prompt([
           {
@@ -76,6 +81,7 @@ addDept = () => {
            type: 'input',
            message: 'What shall the overhead of the new department be Supervisor?'
          }])
+         //callback to updata the database
          .then(function(data){
              
              connection.query("INSERT INTO departments SET ?",{
@@ -88,7 +94,8 @@ addDept = () => {
          })
 
 }
-
+//asks the user if there is anything else to do
+//if not closes the console
 anyMore = () => {
      inquirer.prompt({
          name: 'more',
