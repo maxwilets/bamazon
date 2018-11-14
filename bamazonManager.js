@@ -1,6 +1,7 @@
 var inquirer = require('inquirer');
 var mysql = require('mysql');
 var myTable = require('console.table')
+//array of options for the first screen function
 var firstChoice = ['View Products for Sale', "View Low Inventory", "Add to Inventory", "Add New Product"]
 
 var connection = mysql.createConnection({
@@ -19,11 +20,9 @@ var connection = mysql.createConnection({
 
 connection.connect(function (err) {
     if (err) throw err;
-    // console.log("connected as id " + connection.threadId + "\n");
-
 
 })
-
+//prompts the user on options of what to do
 firstScreen = () => {
     inquirer.prompt({
         name: 'choices',
@@ -32,6 +31,7 @@ firstScreen = () => {
         message: 'What Would you Like to Do?'
 
     }).then(function (data) {
+        //switch for what the user picks
         switch (data.choices) {
             case firstChoice[0]:
                 viewProd()
@@ -55,10 +55,13 @@ firstScreen()
 
 viewProd = () => {
     query = "SELECT * FROM products"
+    //shows all the products with their stock inventory
+    //loops array to table just like in bamazon.js
     connection.query(query, function (err, res) {
         var values = []
             for (i = 0; i < res.length; i++) {
                 array = []
+                //like bamazon.js but also shows stock quantity
                 array.push(res[i].id, res[i].product_name, res[i].price, res[i].stock_quantity)
                 values.push(array)
                 
@@ -66,14 +69,14 @@ viewProd = () => {
             console.log('\n =============================================\n');
             console.table(['id', 'name', 'price','quantity'], values);
             console.log('\n=============================================\n')
-            
+            //anyMore prompts the user if they want to do anything else
             anyMore()
         }
 
     )
 
 }
-
+//shows the user what products in stock are less than 5
 lowInvent = () => {
     query = 'SELECT * FROM products WHERE stock_quantity < 5'
     connection.query(query, function (err, res) {
@@ -83,14 +86,16 @@ lowInvent = () => {
             console.log("Quantity: " + res[i].stock_quantity);
             console.log('\n =============================================\n')
         }
+        //anything else?
         anyMore();
     })
 }
-
+//asks the user what product they want to add inventory on
 addInvent = () => {
     query = 'SELECT * FROM products'
     connection.query(query, function (err, res) {
         values = []
+        //shows the user the id and stock quantity for reference
         for (i = 0; i < res.length; i++) {  
                 array = []
                 array.push(res[i].id, res[i].product_name, res[i].price, res[i].stock_quantity)
@@ -107,8 +112,7 @@ addInvent = () => {
             .then(function (data) {
                 var ID = data.restock
 
-
-                inquirer.prompt({
+                        inquirer.prompt({
                         name: 'restock1',
                         type: 'input',
                         message: "Enter quantity of units you want to restock"
@@ -116,9 +120,11 @@ addInvent = () => {
                     })
                     .then(function (data) {
                         connection.query("SELECT * FROM products where id=" + ID, function (err, res) {
+                            //makes a variable for the qunatity of the product in the database
                             var quant = parseInt(res[0].stock_quantity)
+                            //variable for the ammount the user wants to restock
                             var newData = parseInt(data.restock1)
-
+                            //updates the inventory in the database
                             var newQuant = (quant + newData)
                             query = "UPDATE products SET stock_quantity=" + newQuant + " WHERE id=" + ID
                             connection.query(query, function (err, res) {
@@ -132,30 +138,31 @@ addInvent = () => {
     })
 }
 
-
+//prompts the user to input item name department price and ammount to order
 addNew = () => {
     inquirer.prompt([{
                 name: 'item',
                 type: 'input',
-                message: 'What is the name of the item you want to add?'
+                message: 'What is the name of the item you want to add Manager?'
             },
             {
                 name: 'department',
                 type: 'input',
-                message: 'What department is the product?'
+                message: 'Manager, what department is the product?'
             },
             {
                 name: 'price',
                 type: 'input',
-                message: 'How much do you want to charge for the product'
+                message: 'Manager, how much do you want to charge for the product?'
             },
             {
                 name: 'quantity',
                 type: 'input',
-                message: 'How many do you want to order'
+                message: 'Manager, how many do you want to order?'
             }
         ])
         .then(function (data) {
+            //creates new object in the database
             connection.query("INSERT INTO products SET ?", {
                 product_name: data.item,
                 department_name: data.department,
@@ -170,7 +177,8 @@ addNew = () => {
         })
 
 }
-
+//the function thats the user if the want to do anything else
+//if not it turns off the console
 anyMore = () => {
     inquirer.prompt({
             name: 'more',
