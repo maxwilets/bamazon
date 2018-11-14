@@ -56,7 +56,7 @@ viewSales = () => {
         //loop to make the table
         for (i = 0; i < res.length; i++) {
             array = [];
-            array.push(res[i].department_id, res[i].department_name, res[i].department_name, res[i].Sales, res[i].Profit)
+            array.push(res[i].department_id, res[i].department_name, res[i].overhead, res[i].Sales, res[i].Profit)
             values.push(array)
         }
         console.log('\n =============================================\n');
