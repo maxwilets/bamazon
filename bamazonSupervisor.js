@@ -1,7 +1,8 @@
 var inquirer = require('inquirer');
 var mysql = require('mysql');
 var myTable = require('console.table')
-var menuChoice = ["View Sales By Department", "Add a New Department"]
+var menuChoice = [("View Sales By Department"), ("Add a New Department")]
+var colors = require('colors/safe')
 
 var connection = mysql.createConnection({
     host: "localhost",
@@ -19,7 +20,7 @@ var connection = mysql.createConnection({
 
 connection.connect(function (err) {
     if (err) throw err;
-    console.log("\n~~~~~`~` Welcome Supervisor to Bamazon Supervisor Mode `~`~~~~~\n")
+    console.log(colors.rainbow("\n~~~~~`~` Welcome Supervisor to Bamazon Supervisor Mode `~`~~~~~\n"))
 
     menuScreen()
 })
